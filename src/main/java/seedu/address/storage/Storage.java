@@ -48,10 +48,22 @@ public interface Storage {
     Optional<ReadOnlyAddressBook> readAddressBook() throws DataLoadingException;
 
     /**
+     * Returns the exact saved file contents, or an empty value if the file does not exist.
+     */
+    Optional<String> readAddressBookFileSnapshot() throws IOException;
+
+    /**
      * Saves the given {@link ReadOnlyAddressBook} to the storage.
      * @param addressBook cannot be null.
      * @throws IOException if there was any problem writing to the file.
      */
     void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException;
+
+    /**
+     * Saves only if the file still matches the contents seen by this app window.
+     * Returns the newly saved contents for the next comparison.
+     */
+    String saveAddressBookIfUnchanged(ReadOnlyAddressBook addressBook, Optional<String> expectedSnapshot)
+            throws IOException;
 
 }

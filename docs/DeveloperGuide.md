@@ -159,6 +159,11 @@ a regular replacement move; this fallback does not guarantee atomicity. Temporar
 write or move failures. This protects existing data from incomplete temporary writes, but is not a guarantee against
 power loss or all filesystem failures. The same saving path is used for student records and user preferences.
 
+Before saving changed student records, `LogicManager` asks Storage to compare the data file with the exact contents
+seen by that app window. Storage holds a file lock during the comparison and replacement, so two app instances cannot
+save between those steps. If the file has changed, the command is rejected and its in-memory change is rolled back;
+the user must restart to load the newer records. Read-only commands do not save student data.
+
 ### Common classes
 
 Classes used by multiple components are in the `seedu.address.commons` package.
@@ -265,7 +270,7 @@ Both diagrams treat the Model and Storage components as black boxes. They omit l
 
 #### Storage and UI updates
 
-After either command completes successfully, `LogicManager` passes the address book to the `Storage` component. This normal save also occurs when `clearrecurringlesson` finds no recurring lesson and leaves the model unchanged. `JsonAdaptedPerson` represents the optional recurring lesson using `JsonAdaptedRecurringLesson`, which stores its day, time, and topic as JSON-compatible strings and its duration as an integer `durationMinutes` field. When the data is loaded again, the adapter validates the stored values before reconstructing the `RecurringLesson` model object. For compatibility with older data, a missing or null duration defaults to 60 minutes and a stored duration above 1440 is capped at 1440 minutes; zero or negative durations are rejected.
+After either command changes student data successfully, `LogicManager` passes the address book to the `Storage` component. A `clearrecurringlesson` command that leaves the model unchanged does not save. `JsonAdaptedPerson` represents the optional recurring lesson using `JsonAdaptedRecurringLesson`, which stores its day, time, and topic as JSON-compatible strings and its duration as an integer `durationMinutes` field. When the data is loaded again, the adapter validates the stored values before reconstructing the `RecurringLesson` model object. For compatibility with older data, a missing or null duration defaults to 60 minutes and a stored duration above 1440 is capped at 1440 minutes; zero or negative durations are rejected.
 
 `PersonListPanel` displays the `ObservableList<Person>` exposed by Logic and backed by the model's filtered list. Replacing the `Person` in the model updates this list, after which `PersonCard` formats the recurring schedule for the summary. The `view` command displays the full record, including the topic and note, in `PersonDetailsPanel`.
 
@@ -756,9 +761,7 @@ User Guide where applicable. Use the same working directory on every launch: the
 1. Before entering any command, inspect the file.<br>
    Expected: Its invalid contents remain. Loading an empty list does not itself repair the file.
 1. Run `list`.<br>
-   Expected: No students are listed. The file is overwritten with valid JSON containing an empty `persons` array.
-   Even a read-only command can overwrite unreadable data, so the backup must be made before testing. The `exit`
-   command also saves data: use the window's close button when inspecting the file before any command has run.
+   Expected: No students are listed. The invalid file remains unchanged because read-only commands do not save.
 1. Close the app, copy the backup over `data/addressbook.json`, and relaunch.<br>
    Expected: Persistence Check and all its saved details return.
 

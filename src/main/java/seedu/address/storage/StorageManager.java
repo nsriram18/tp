@@ -60,9 +60,20 @@ public class StorageManager implements Storage {
     }
 
     @Override
+    public Optional<String> readAddressBookFileSnapshot() throws IOException {
+        return addressBookStorage.readAddressBookFileSnapshot();
+    }
+
+    @Override
     public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
         logger.fine("Attempting to write to data file: " + addressBookStorage.getAddressBookFilePath());
         addressBookStorage.saveAddressBook(addressBook);
+    }
+
+    @Override
+    public String saveAddressBookIfUnchanged(ReadOnlyAddressBook addressBook, Optional<String> expectedSnapshot)
+            throws IOException {
+        return addressBookStorage.saveAddressBookIfUnchanged(addressBook, expectedSnapshot);
     }
 
 }
