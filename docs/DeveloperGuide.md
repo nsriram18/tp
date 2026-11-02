@@ -19,6 +19,13 @@
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), [JUnit 5](https://github.com/junit-team/junit5), and [Checkstyle](https://checkstyle.sourceforge.io/).
 * Documentation is built with [MarkBind](https://markbind.org/).
 
+### AI assistance
+
+* Lee Hong Sheng ([@RightHandSide](https://github.com/RightHandSide)) used OpenAI Codex to assist with implementing
+  bug fixes, refining input validation and user-facing messages, writing and running regression tests, reviewing pull
+  requests, and investigating test and CI failures. Codex also helped draft commit messages and pull request
+  descriptions.
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Setting up, getting started**
