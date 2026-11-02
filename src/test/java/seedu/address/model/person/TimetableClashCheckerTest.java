@@ -3,8 +3,10 @@ package seedu.address.model.person;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +18,20 @@ public class TimetableClashCheckerTest {
 
     private static final LocalDate DATE = LocalDate.of(2099, 6, 15);
     private final Person target = new PersonBuilder().withName("Target Student").build();
+
+    @Test
+    public void findNextLessonClash_recurringAfterMidnight_ignoresLessonOnlyAtItsEnd() {
+        NextLesson existing = NextLesson.fromStoredValues(DATE, LocalTime.of(23, 30), "Late topic",
+                new LessonDuration("60"));
+        Person other = new PersonBuilder().withName("Other Student").withNextLesson(existing).build();
+        RecurringLesson proposed = new RecurringLesson(DATE.plusDays(1).getDayOfWeek(), LocalTime.MIDNIGHT,
+                "New topic", new LessonDuration("60"));
+        Clock ongoing = Clock.fixed(DATE.plusDays(1).atTime(0, 29).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
+        Clock ended = Clock.fixed(DATE.plusDays(1).atTime(0, 30).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
+        assertEquals(Optional.of(new LessonClash<>(other, existing)),
+                TimetableClashChecker.findNextLessonClash(target, proposed, List.of(other), ongoing));
+        assertTrue(TimetableClashChecker.findNextLessonClash(target, proposed, List.of(other), ended).isEmpty());
+    }
 
     @Test
     public void findNextLessonClash_identicalAndPartialOverlaps_returnsConflictingStudent() {

@@ -2,6 +2,7 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -34,6 +35,7 @@ public class RecurringLessonCommand extends Command {
 
     private final Index index;
     private final RecurringLesson recurringLesson;
+    private final Clock clock;
 
     /**
      * Creates a command to set the recurring lesson for the student at {@code index}.
@@ -42,10 +44,16 @@ public class RecurringLessonCommand extends Command {
      * @param recurringLesson new recurring lesson
      */
     public RecurringLessonCommand(Index index, RecurringLesson recurringLesson) {
+        this(index, recurringLesson, Clock.systemDefaultZone());
+    }
+
+    /** Creates a command using the supplied clock to ignore completed one-off lessons at execution time. */
+    public RecurringLessonCommand(Index index, RecurringLesson recurringLesson, Clock clock) {
         requireNonNull(index);
         requireNonNull(recurringLesson);
         this.index = index;
         this.recurringLesson = recurringLesson;
+        this.clock = requireNonNull(clock);
     }
 
     @Override
@@ -70,7 +78,7 @@ public class RecurringLessonCommand extends Command {
     /** Rejects a next-lesson clash unless it is an exact occurrence of this student's proposed schedule. */
     private void validateNoNextLessonClash(Person student, List<Person> allStudents) throws CommandException {
         Optional<LessonClash<NextLesson>> nextConflict = TimetableClashChecker.findNextLessonClash(student,
-                recurringLesson, allStudents);
+                recurringLesson, allStudents, clock);
         if (nextConflict.isPresent()) {
             LessonClash<NextLesson> clash = nextConflict.orElseThrow();
             NextLesson lesson = clash.lesson();
