@@ -126,6 +126,9 @@ class JsonAdaptedPerson {
         requireNonNull(clock);
         final List<Tag> personTags = new ArrayList<>();
         for (JsonAdaptedTag tag : tags) {
+            if (tag == null) {
+                throw new IllegalValueException("Student tags must not contain null entries.");
+            }
             personTags.add(tag.toModelType());
         }
 

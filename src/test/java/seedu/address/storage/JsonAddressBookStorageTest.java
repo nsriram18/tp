@@ -2,6 +2,7 @@ package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
@@ -21,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.commons.exceptions.DataLoadingException;
+import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.logic.commands.NextLessonCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.AddressBook;
@@ -37,6 +39,29 @@ public class JsonAddressBookStorageTest {
 
     @TempDir
     public Path testFolder;
+
+    @Test
+    public void readAddressBook_nullStudent_reportsLoadErrorAndPreservesFile() throws Exception {
+        assertMalformedDataIsPreserved("{\"persons\": [null]}");
+    }
+
+    @Test
+    public void readAddressBook_nullTag_reportsLoadErrorAndPreservesFile() throws Exception {
+        assertMalformedDataIsPreserved("""
+                {"persons": [{"name": "Test Student", "phone": "90000000",
+                  "email": "student@example.com", "address": "Block One", "tags": [null]}]}
+                """);
+    }
+
+    private void assertMalformedDataIsPreserved(String contents) throws Exception {
+        Path filePath = testFolder.resolve("malformed.json");
+        Files.writeString(filePath, contents);
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+        DataLoadingException exception = org.junit.jupiter.api.Assertions.assertThrows(
+                DataLoadingException.class, storage::readAddressBook);
+        assertInstanceOf(IllegalValueException.class, exception.getCause());
+        assertEquals(contents, Files.readString(filePath));
+    }
 
     @Test
     public void readAddressBook_nullFilePath_throwsNullPointerException() {

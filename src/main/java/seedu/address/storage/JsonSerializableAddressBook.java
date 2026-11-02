@@ -60,6 +60,9 @@ class JsonSerializableAddressBook {
         Clock loadClock = Clock.fixed(clock.instant(), clock.getZone());
         AddressBook addressBook = new AddressBook();
         for (JsonAdaptedPerson jsonAdaptedPerson : persons) {
+            if (jsonAdaptedPerson == null) {
+                throw new IllegalValueException("Student list must not contain null entries.");
+            }
             Person person = jsonAdaptedPerson.toModelType(loadClock);
             if (addressBook.hasPerson(person)) {
                 throw new IllegalValueException(MESSAGE_DUPLICATE_PERSON);
