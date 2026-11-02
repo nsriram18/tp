@@ -19,6 +19,13 @@
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), [JUnit 5](https://github.com/junit-team/junit5), and [Checkstyle](https://checkstyle.sourceforge.io/).
 * Documentation is built with [MarkBind](https://markbind.org/).
 
+### AI assistance
+
+* Sriram ([@nsriram18](https://github.com/nsriram18)) used OpenAI Codex to assist with implementing bug fixes and
+  code-quality improvements, generating regression tests, debugging and investigating CI failures, reviewing pull
+  requests, and updating the User and Developer Guides. Codex also helped draft GitHub issue reports and pull request
+  descriptions. Validation assistance included running automated tests and, where applicable, application smoke tests.
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Setting up, getting started**
