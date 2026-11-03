@@ -6,6 +6,17 @@ plugins {
     id 'jacoco'
 }
 
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+
+def javaFxVersion = '17.0.7'
+
+configurations {
+    macArmJavaFx {
+        transitive = false
+    }
+}
+
 application {
     mainClass = 'seedu.address.Main'
     applicationDefaultJvmArgs = ['-ea']
@@ -52,8 +63,6 @@ task coverage(type: JacocoReport) {
 
 dependencies {
     String jUnitVersion = '5.14.4'
-    String javaFxVersion = '17.0.7'
-
     implementation "org.openjfx:javafx-base:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-base:${javaFxVersion}:mac"
     implementation "org.openjfx:javafx-base:${javaFxVersion}:linux"
@@ -66,6 +75,7 @@ dependencies {
     implementation "org.openjfx:javafx-graphics:${javaFxVersion}:win"
     implementation "org.openjfx:javafx-graphics:${javaFxVersion}:mac"
     implementation "org.openjfx:javafx-graphics:${javaFxVersion}:linux"
+    macArmJavaFx "org.openjfx:javafx-graphics:${javaFxVersion}:mac-aarch64"
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.7.0'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.7.4'
@@ -76,8 +86,74 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
 }
 
+def universalMacNatives = tasks.register('universalMacNatives') {
+    def outputDirectory = layout.buildDirectory.dir('universalMacNatives')
+    inputs.files(configurations.runtimeClasspath, configurations.macArmJavaFx)
+    outputs.dir(outputDirectory)
+
+    doLast {
+        File intelJar = configurations.runtimeClasspath.files.find {
+            it.name == "javafx-graphics-${javaFxVersion}-mac.jar"
+        }
+        if (intelJar == null) {
+            throw new GradleException('Intel macOS JavaFX graphics dependency is missing')
+        }
+        File armJar = configurations.macArmJavaFx.singleFile
+        def intelLibraries = zipTree(intelJar).matching { include '*.dylib' }.files
+        def armLibraries = zipTree(armJar).matching { include '*.dylib' }.files.collectEntries {
+            [(it.name): it]
+        }
+        File output = outputDirectory.get().asFile
+        output.mkdirs()
+
+        intelLibraries.each { File intelLibrary ->
+            File armLibrary = armLibraries[intelLibrary.name]
+            if (armLibrary == null) {
+                throw new GradleException("ARM macOS JavaFX library is missing: ${intelLibrary.name}")
+            }
+            byte[] intelBytes = intelLibrary.bytes
+            byte[] armBytes = armLibrary.bytes
+            def architecture = { byte[] bytes ->
+                ByteBuffer header = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
+                if (header.getInt(0) != (int) 0xfeedfacf) {
+                    throw new GradleException("Expected a 64-bit Mach-O library: ${intelLibrary.name}")
+                }
+                [header.getInt(4), header.getInt(8)]
+            }
+            def intelArch = architecture(intelBytes)
+            def armArch = architecture(armBytes)
+            // A fat Mach-O header points to each native slice at a 16 KiB boundary.
+            int alignment = 16384
+            int firstOffset = alignment
+            int secondOffset = ((firstOffset + intelBytes.length + alignment - 1).intdiv(alignment)) * alignment
+
+            new DataOutputStream(new FileOutputStream(new File(output, intelLibrary.name))).withCloseable { stream ->
+                stream.writeInt((int) 0xcafebabe)
+                stream.writeInt(2)
+                stream.writeInt(intelArch[0]); stream.writeInt(intelArch[1])
+                stream.writeInt(firstOffset); stream.writeInt(intelBytes.length); stream.writeInt(14)
+                stream.writeInt(armArch[0]); stream.writeInt(armArch[1])
+                stream.writeInt(secondOffset); stream.writeInt(armBytes.length); stream.writeInt(14)
+                stream.write(new byte[firstOffset - 48])
+                stream.write(intelBytes)
+                stream.write(new byte[secondOffset - firstOffset - intelBytes.length])
+                stream.write(armBytes)
+            }
+        }
+    }
+}
+
 shadowJar {
     archiveFileName = 'TutorTrack.jar'
+    dependsOn universalMacNatives
+    eachFile { details ->
+        if (details.name.endsWith('.dylib') && !details.file.path.contains('universalMacNatives')) {
+            details.exclude()
+        }
+    }
+    from(universalMacNatives) {
+        include '*.dylib'
+    }
 }
 
 defaultTasks 'clean', 'test'
