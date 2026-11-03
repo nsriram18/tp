@@ -44,13 +44,13 @@ public class UpcomingCommandTest {
         Person student = new PersonBuilder(original).withNextLesson(lesson).build();
         model.setPerson(original, student);
 
-        for (LocalDateTime now : new LocalDateTime[]{start.minusNanos(1), start}) {
+        for (LocalDateTime now : new LocalDateTime[]{start.minusNanos(1), start, start.plusSeconds(30)}) {
             new UpcomingCommand(Clock.fixed(now.atZone(zone).toInstant(), zone)).execute(model);
             assertEquals(List.of(student), model.getFilteredPersonList());
         }
 
-        Clock afterStart = Clock.fixed(start.plusNanos(1).atZone(zone).toInstant(), zone);
-        assertCommandFailure(new UpcomingCommand(afterStart), model, UpcomingCommand.MESSAGE_NO_UPCOMING_LESSON);
+        Clock nextMinute = Clock.fixed(start.plusMinutes(1).atZone(zone).toInstant(), zone);
+        assertCommandFailure(new UpcomingCommand(nextMinute), model, UpcomingCommand.MESSAGE_NO_UPCOMING_LESSON);
     }
 
     @Test
@@ -120,12 +120,12 @@ public class UpcomingCommandTest {
     public void execute_recurringStartBoundary_rollsForwardOnlyAfterStart() throws Exception {
         Person student = withRecurring(model.getAddressBook().getPersonList().get(0), DayOfWeek.MONDAY, 9);
         model.setPerson(model.getAddressBook().getPersonList().get(0), student);
-        for (String now : List.of("2030-06-17T08:59:59", "2030-06-17T09:00:00")) {
+        for (String now : List.of("2030-06-17T08:59:59", "2030-06-17T09:00:00", "2030-06-17T09:00:30")) {
             assertEquals(String.format(UpcomingCommand.MESSAGE_SUCCESS, "2030-06-17 09:00"),
                     at(now).execute(model).getFeedbackToUser());
         }
         assertEquals(String.format(UpcomingCommand.MESSAGE_SUCCESS, "2030-06-24 09:00"),
-                at("2030-06-17T09:00:01").execute(model).getFeedbackToUser());
+                at("2030-06-17T09:01:00").execute(model).getFeedbackToUser());
     }
 
     @Test
@@ -138,7 +138,7 @@ public class UpcomingCommandTest {
         model.updateFilteredPersonList(person -> person.equals(oneOff));
         at("2030-06-17T08:00:00").execute(model);
         assertEquals(List.of(recurring), model.getFilteredPersonList());
-        at("2030-06-17T09:00:01").execute(model);
+        at("2030-06-17T09:01:00").execute(model);
         assertEquals(List.of(oneOff), model.getFilteredPersonList());
     }
 
@@ -162,7 +162,7 @@ public class UpcomingCommandTest {
                 lessonOn(LocalDate.of(2030, 6, 17), 9));
         model.setPerson(model.getAddressBook().getPersonList().get(0), student);
         model.updateFilteredPersonList(person -> person.equals(student));
-        assertCommandFailure(at("2030-06-17T09:00:01"), model, UpcomingCommand.MESSAGE_NO_UPCOMING_LESSON);
+        assertCommandFailure(at("2030-06-17T09:01:00"), model, UpcomingCommand.MESSAGE_NO_UPCOMING_LESSON);
         assertEquals(List.of(student), model.getFilteredPersonList());
     }
 

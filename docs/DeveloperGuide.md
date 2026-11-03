@@ -220,8 +220,10 @@ Only members relevant to lesson priority are shown.
 
 ### Upcoming lesson selection
 
-`UpcomingCommand` takes one local-time snapshot from its clock. `RecurringLesson#getNextOccurrence(...)` uses the
-next matching weekday, including today, and advances one week if that start has passed. The command searches all
+`UpcomingCommand` takes one local-time snapshot from its clock, truncated to the minute to match the `HH:mm`
+precision of lesson booking, so a lesson starting in the current minute still counts as upcoming.
+`RecurringLesson#getNextOccurrence(...)` uses the
+next matching weekday, including today, and advances one week if that start minute has passed. The command searches all
 student records, not just those currently displayed. A student appears only once when both lesson types represent
 the same occurrence. Selection changes only the displayed-list filter, not student records or their saved order.
 The filter keeps the same time snapshot until another command changes it; rerun `upcoming` to refresh the selection.

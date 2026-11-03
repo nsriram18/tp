@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -49,7 +50,7 @@ public class UpcomingCommand extends Command {
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        LocalDateTime now = LocalDateTime.now(clock);
+        LocalDateTime now = LocalDateTime.now(clock).truncatedTo(ChronoUnit.MINUTES);
         LocalDateTime earliest = model.getAddressBook().getPersonList().stream()
                 .map(person -> getEarliestStart(person, now))
                 .flatMap(Optional::stream)
