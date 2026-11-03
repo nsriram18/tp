@@ -341,7 +341,7 @@ Clears all students in TutorTrack.
 
 Format: `clear`
 
-* If there are no students, TutorTrack reports that there are no students to remove.
+* If this window's student list is empty, TutorTrack reports that there are no students to remove in this window. Students added from another TutorTrack window are not shown or cleared until you reopen TutorTrack.
 
 ### Exiting the program: `exit`
 
