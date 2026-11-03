@@ -6,6 +6,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 /**
@@ -79,13 +80,14 @@ public class NextLesson {
     }
 
     /**
-     * Returns whether the start is strictly before the supplied clock's local date and time.
+     * Returns whether the start is before the supplied clock's current minute.
+     * Starts are entered in {@code HH:mm}, so a start in the current minute is not in the past.
      */
     public static boolean isDateTimeInPast(LocalDate date, LocalTime time, Clock clock) {
         requireNonNull(date);
         requireNonNull(time);
         requireNonNull(clock);
-        return LocalDateTime.of(date, time).isBefore(LocalDateTime.now(clock));
+        return LocalDateTime.of(date, time).isBefore(LocalDateTime.now(clock).truncatedTo(ChronoUnit.MINUTES));
     }
 
     /**

@@ -263,7 +263,7 @@ Sets or replaces the next lesson for a student. The index refers to the current 
 Format: `nextlesson INDEX date/YYYY-MM-DD time/HH:mm dur/MINUTES topic/TOPIC`
 
 * The date must be a valid date in `YYYY-MM-DD` format and the time a valid 24-hour time in `HH:mm` format.
-* The lesson must not be in the past, and the topic must not be blank.
+* The lesson must not be in the past, and the topic must not be blank. A start in the current minute is accepted.
 * `topic/TOPIC` must be the final parameter. All remaining text after `topic/` is saved as the topic, so the topic may include text resembling a command prefix, such as `time/ complexity`.
 * The duration is required and must be a whole number from 1 to 1440 minutes. Times use the computer's local date and time. A 90-minute lesson starting at 23:30 ends at 01:00 the following day.
 * After a successful `nextlesson`, the displayed list is reset to show all students.

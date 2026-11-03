@@ -37,14 +37,16 @@ public class NextLessonTest {
     }
 
     @Test
-    public void constructor_fixedClockAfterStart_rejectsPastBooking() {
+    public void constructor_fixedClockLaterInStartMinute_acceptsBooking() {
         LocalDateTime start = LocalDateTime.of(2000, 1, 1, 10, 0);
         ZoneId zone = ZoneId.of("Asia/Singapore");
-        Clock clock = Clock.fixed(start.plusNanos(1).atZone(zone).toInstant(), zone);
+        for (LocalDateTime now : new LocalDateTime[]{start.plusNanos(1), start.plusSeconds(59)}) {
+            Clock clock = Clock.fixed(now.atZone(zone).toInstant(), zone);
 
-        assertTrue(NextLesson.isDateTimeInPast(start.toLocalDate(), start.toLocalTime(), clock));
-        Assert.assertThrows(IllegalArgumentException.class, NextLesson.MESSAGE_DATE_TIME_CONSTRAINTS, () ->
-                new NextLesson(start.toLocalDate(), start.toLocalTime(), VALID_TOPIC, VALID_DURATION, clock));
+            assertFalse(NextLesson.isDateTimeInPast(start.toLocalDate(), start.toLocalTime(), clock));
+            assertEquals(start, new NextLesson(start.toLocalDate(), start.toLocalTime(), VALID_TOPIC,
+                    VALID_DURATION, clock).getDateTime());
+        }
     }
 
     @Test
@@ -53,6 +55,7 @@ public class NextLessonTest {
         ZoneId zone = ZoneId.of("Asia/Singapore");
         Clock clock = Clock.fixed(start.plusMinutes(1).atZone(zone).toInstant(), zone);
 
+        assertTrue(NextLesson.isDateTimeInPast(start.toLocalDate(), start.toLocalTime(), clock));
         Assert.assertThrows(IllegalArgumentException.class, NextLesson.MESSAGE_DATE_TIME_CONSTRAINTS, () ->
                 new NextLesson(start.toLocalDate(), start.toLocalTime(), VALID_TOPIC, VALID_DURATION, clock));
     }
