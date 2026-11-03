@@ -14,6 +14,7 @@ import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.NextLessonCommand;
 import seedu.address.model.person.LessonDuration;
 import seedu.address.model.person.NextLesson;
@@ -60,8 +61,10 @@ public class NextLessonCommandParserTest {
 
     @Test
     public void parse_topicBeforeRequiredPrefix_failure() {
-        assertParseFailure(parser, "1 date/" + futureDate + " time/14:30 topic/Algebra dur/90",
-                String.format(MESSAGE_INVALID_COMMAND_FORMAT, NextLessonCommand.MESSAGE_USAGE));
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+                Messages.MESSAGE_TOPIC_NOT_LAST + "\n" + NextLessonCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, "1 date/" + futureDate + " time/14:30 topic/Algebra dur/90", expectedMessage);
+        assertParseFailure(parser, "1 topic/Algebra date/" + futureDate + " time/14:30 dur/90", expectedMessage);
     }
 
     @Test

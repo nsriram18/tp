@@ -58,7 +58,9 @@ public class NextLessonCommandParser implements Parser<NextLessonCommand> {
 
         if (!arePrefixesPresent(argMultimap, PREFIX_LESSON_DATE, PREFIX_LESSON_TIME,
                 PREFIX_LESSON_DURATION, PREFIX_LESSON_TOPIC)) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, NextLessonCommand.MESSAGE_USAGE));
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+                    ParserUtil.getLessonUsageMessage(argMultimap, NextLessonCommand.MESSAGE_USAGE,
+                            PREFIX_LESSON_TOPIC, PREFIX_LESSON_DATE, PREFIX_LESSON_TIME, PREFIX_LESSON_DURATION)));
         }
 
         LocalDate date = ParserUtil.parseLessonDate(argMultimap.getValue(PREFIX_LESSON_DATE).orElseThrow());

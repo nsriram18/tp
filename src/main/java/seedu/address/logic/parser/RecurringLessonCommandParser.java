@@ -56,8 +56,9 @@ public class RecurringLessonCommandParser implements Parser<RecurringLessonComma
                 || argMultimap.getValue(PREFIX_LESSON_TIME).isEmpty()
                 || argMultimap.getValue(PREFIX_LESSON_DURATION).isEmpty()
                 || argMultimap.getValue(PREFIX_LESSON_TOPIC).isEmpty()) {
-            throw new ParseException(
-                    String.format(MESSAGE_INVALID_COMMAND_FORMAT, RecurringLessonCommand.MESSAGE_USAGE));
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+                    ParserUtil.getLessonUsageMessage(argMultimap, RecurringLessonCommand.MESSAGE_USAGE,
+                            PREFIX_LESSON_TOPIC, PREFIX_LESSON_DAY, PREFIX_LESSON_TIME, PREFIX_LESSON_DURATION)));
         }
 
         DayOfWeek day = parseDay(argMultimap.getValue(PREFIX_LESSON_DAY).orElseThrow());
