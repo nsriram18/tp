@@ -3,7 +3,13 @@ package seedu.address.storage;
 import static java.util.Objects.requireNonNull;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -23,6 +29,7 @@ public class JsonAddressBookStorage {
 
     private Path filePath;
     private final Clock clock;
+    private Optional<String> loadedFileSnapshot;
 
     /**
      * Creates storage using the computer's local time zone for saved lessons.
@@ -61,18 +68,63 @@ public class JsonAddressBookStorage {
      */
     public Optional<ReadOnlyAddressBook> readAddressBook(Path filePath) throws DataLoadingException {
         requireNonNull(filePath);
-
-        Optional<JsonSerializableAddressBook> jsonAddressBook = JsonUtil.readJsonFile(
-                filePath, JsonSerializableAddressBook.class);
-        if (!jsonAddressBook.isPresent()) {
-            return Optional.empty();
-        }
-
         try {
-            return Optional.of(jsonAddressBook.get().toModelType(clock));
+            Optional<String> fileContents = readCurrentFileSnapshot(filePath);
+            if (filePath.toAbsolutePath().equals(this.filePath.toAbsolutePath())) {
+                loadedFileSnapshot = fileContents;
+            }
+            if (fileContents.isEmpty()) {
+                return Optional.empty();
+            }
+            JsonSerializableAddressBook jsonAddressBook = JsonUtil.fromJsonString(
+                    fileContents.orElseThrow(), JsonSerializableAddressBook.class);
+            if (jsonAddressBook == null) {
+                throw new IOException("JSON file must contain a non-null value: " + filePath);
+            }
+            return Optional.of(jsonAddressBook.toModelType(clock));
+        } catch (IOException e) {
+            logger.warning("Error reading from jsonFile file " + filePath + ": " + e);
+            throw new DataLoadingException(e);
         } catch (IllegalValueException ive) {
             logger.info("Illegal values found in " + filePath + ": " + ive.getMessage());
             throw new DataLoadingException(ive);
+        }
+    }
+
+    /** Returns the exact contents used for loading, or reads the file if loading has not happened yet. */
+    public Optional<String> readAddressBookFileSnapshot() throws IOException {
+        return loadedFileSnapshot == null ? readCurrentFileSnapshot(filePath) : loadedFileSnapshot;
+    }
+
+    private Optional<String> readCurrentFileSnapshot(Path path) throws IOException {
+        try {
+            return Optional.of(Files.readString(path, StandardCharsets.UTF_8));
+        } catch (NoSuchFileException exception) {
+            return Optional.empty();
+        }
+    }
+
+    /**
+     * Checks and saves under a file lock, preventing another app instance from writing between those steps.
+     * The lock file is retained so all instances continue to lock the same file.
+     */
+    public String saveAddressBookIfUnchanged(ReadOnlyAddressBook addressBook, Optional<String> expectedSnapshot)
+            throws IOException {
+        requireNonNull(addressBook);
+        requireNonNull(expectedSnapshot);
+        Path absoluteFilePath = filePath.toAbsolutePath();
+        Path lockPath = absoluteFilePath.resolveSibling(absoluteFilePath.getFileName() + ".lock");
+        Files.createDirectories(lockPath.getParent());
+        synchronized (JsonAddressBookStorage.class) {
+            try (FileChannel channel = FileChannel.open(lockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+                    FileLock ignored = channel.lock()) {
+                if (!readCurrentFileSnapshot(filePath).equals(expectedSnapshot)) {
+                    throw new AddressBookChangedException();
+                }
+                String savedContents = JsonUtil.toJsonString(new JsonSerializableAddressBook(addressBook));
+                saveAddressBook(addressBook);
+                return savedContents;
+            }
         }
     }
 

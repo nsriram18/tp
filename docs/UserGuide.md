@@ -51,6 +51,7 @@ TutorTrack is a desktop contact-management application for private tutors who ma
 * **Launch from a terminal.** Double-clicking the JAR file may not work on some systems (for example, when it opens in an archive tool or with the wrong Java version). If nothing happens, use the `java -jar "TutorTrack.jar"` command above.
 * **Use a writable folder.** TutorTrack saves its data, preferences and log next to where you launch it. If the folder is write-protected (for example `Program Files` or a read-only drive), the app cannot save, and commands that change data will show a saving error. Move the JAR to a folder you own, such as your Documents folder.
 * **Always launch from the same folder** to keep using the same student data. See [Editing the data file](#editing-the-data-file).
+* **Avoid editing the same data in two app windows.** If another window changes the student data, a command that would save from an older window is rejected with a message to restart TutorTrack. Restart that window to load the latest records before making changes.
 * **macOS fullscreen:** secondary windows such as the Help window may behave unexpectedly when the main window is in fullscreen mode. Exit fullscreen before opening the Help window.
 </box>
 

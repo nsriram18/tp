@@ -3,6 +3,7 @@ package seedu.address.logic;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.time.Clock;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 
@@ -17,6 +18,7 @@ import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
+import seedu.address.storage.AddressBookChangedException;
 import seedu.address.storage.Storage;
 
 /**
@@ -28,11 +30,16 @@ public class LogicManager implements Logic {
     public static final String FILE_OPS_PERMISSION_ERROR_FORMAT =
             "Could not save data to file %s due to insufficient permissions to write to the file or the folder.";
 
+    public static final String FILE_CHANGED_ERROR = "The data file changed in another app window. "
+            + "Restart TutorTrack to load the latest students before making changes.";
+
     private final Logger logger = LogsCenter.getLogger(LogicManager.class);
 
     private final Model model;
     private final Storage storage;
     private final AddressBookParser addressBookParser;
+    private final IOException initialSnapshotError;
+    private Optional<String> savedFileSnapshot;
 
     /**
      * Constructs a {@code LogicManager} with the given {@code Model} and {@code Storage}.
@@ -48,6 +55,14 @@ public class LogicManager implements Logic {
         this.model = model;
         this.storage = storage;
         addressBookParser = new AddressBookParser(clock);
+        IOException snapshotError = null;
+        try {
+            savedFileSnapshot = storage.readAddressBookFileSnapshot();
+        } catch (IOException e) {
+            savedFileSnapshot = Optional.empty();
+            snapshotError = e;
+        }
+        initialSnapshotError = snapshotError;
     }
 
     @Override
@@ -64,8 +79,15 @@ public class LogicManager implements Logic {
             // A read-only command may run in a window with stale data. Saving it
             // would overwrite changes made by another window.
             if (!previousAddressBook.equals(model.getAddressBook())) {
-                storage.saveAddressBook(model.getAddressBook());
+                if (initialSnapshotError != null) {
+                    throw initialSnapshotError;
+                }
+                savedFileSnapshot = Optional.of(storage.saveAddressBookIfUnchanged(
+                        model.getAddressBook(), savedFileSnapshot));
             }
+        } catch (AddressBookChangedException e) {
+            restoreModel(previousAddressBook, previousFilter);
+            throw new CommandException(FILE_CHANGED_ERROR, e);
         } catch (AccessDeniedException e) {
             restoreModel(previousAddressBook, previousFilter);
             throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, e.getMessage()), e);
