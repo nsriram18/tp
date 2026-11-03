@@ -1,6 +1,7 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_AMY;
@@ -95,8 +96,7 @@ public class LogicManagerTest {
     public void execute_saveFails_restoresChangesAndFilter() throws Exception {
         for (String command : List.of(
                 "add n/Charlie p/90000001 e/charlie@example.com a/Block One",
-                "edit 1 s/Physics", "delete 1", "clear", "note 1 note/Changed",
-                "filter s/Physics", "list", "sort")) {
+                "edit 1 s/Physics", "delete 1", "clear", "note 1 note/Changed", "sort")) {
             model = new ModelManager();
             Person amy = new PersonBuilder(AMY).withSubject("Mathematics")
                     .withNextLesson(new NextLesson(LocalDate.now().plusDays(1), LocalTime.NOON,
@@ -135,9 +135,9 @@ public class LogicManagerTest {
             assertEquals(List.of(), model.getFilteredPersonList(), command);
             model.setPerson(changedAmy, amy);
 
-            // A later read-only command must persist the restored records, never the failed mutation.
+            // A later read-only command must not persist the failed mutation.
             logic.execute("list");
-            assertEquals(original, addressBookStorage.readAddressBook().orElseThrow(), command);
+            assertTrue(Files.notExists(dataPath), command);
         }
     }
 
@@ -146,7 +146,7 @@ public class LogicManagerTest {
         Path dataPath = temporaryFolder.resolve("addressBook.json");
         Path backupPath = temporaryFolder.resolve("addressBook.backup.json");
         model.addPerson(AMY);
-        logic.execute("list");
+        new JsonAddressBookStorage(dataPath).saveAddressBook(model.getAddressBook());
         Files.move(dataPath, backupPath);
         Files.createDirectory(dataPath);
 

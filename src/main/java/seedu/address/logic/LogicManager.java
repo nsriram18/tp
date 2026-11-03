@@ -61,7 +61,11 @@ public class LogicManager implements Logic {
         commandResult = command.execute(model);
 
         try {
-            storage.saveAddressBook(model.getAddressBook());
+            // A read-only command may run in a window with stale data. Saving it
+            // would overwrite changes made by another window.
+            if (!previousAddressBook.equals(model.getAddressBook())) {
+                storage.saveAddressBook(model.getAddressBook());
+            }
         } catch (AccessDeniedException e) {
             restoreModel(previousAddressBook, previousFilter);
             throw new CommandException(String.format(FILE_OPS_PERMISSION_ERROR_FORMAT, e.getMessage()), e);
