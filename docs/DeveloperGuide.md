@@ -33,6 +33,8 @@
   
 * Toh Wei Jun ([@weijun72](https://github.com/weijun72)) used OpenAI Codex to assist with implementing and refining TutorTrack features and bug fixes, writing and running tests, updating documentation and diagrams, investigating build and CI failures, reviewing pull requests, and drafting commit messages and pull request descriptions. The suggested changes were reviewed and tested before submission.
 
+* Panneer Selvam ([@spadewiz](https://github.com/spadewiz)) used GitHub Copilot to assist with writing code and tests, reviewing pull requests, and drafting GitHub issues and pull request descriptions. Panneer Selvam also used Claude to create issues and pull requests for bug fixes and to edit functional code. The suggested changes were reviewed before submission.
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Setting up, getting started**
