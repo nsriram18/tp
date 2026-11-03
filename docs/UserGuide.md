@@ -349,7 +349,7 @@ Format: `exit`
 
 ### Saving the data
 
-TutorTrack automatically saves data after every command. You do not need to save manually.
+TutorTrack automatically saves data when a command changes the student records. Read-only commands such as `list` do not save. You do not need to save manually.
 
 If saving fails, TutorTrack displays an error and restores the student records, their order, and the displayed list to their state before the command. Resolve the reported file-access problem before retrying the command.
 
@@ -360,10 +360,10 @@ TutorTrack data is saved automatically as a JSON file `data/addressbook.json`, l
 <box type="warning" seamless>
 
 **Caution:**
-If your changes make the data file invalid, TutorTrack starts with an empty student list at the next run. The invalid file remains on disk until you run a command (TutorTrack saves after every command). Still, we recommend backing up the file before editing it.<br>
+If your changes make the data file invalid, TutorTrack starts with an empty student list at the next run. The invalid file remains on disk until a command changes the student records and saves them. Read-only commands do not overwrite it. Still, we recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause TutorTrack to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 
-Student names that differ only in capitalization, repeated spaces, or surrounding spaces are considered duplicates. After upgrading TutorTrack, a data file containing such records cannot be loaded. If TutorTrack starts with an empty student list after an upgrade, close it without running a command, back up `data/addressbook.json`, and remove or rename the duplicate records in the JSON file before restarting TutorTrack. Running a command while the student list is empty may overwrite the invalid data file.
+Student names that differ only in capitalization, repeated spaces, or surrounding spaces are considered duplicates. After upgrading TutorTrack, a data file containing such records cannot be loaded. If TutorTrack starts with an empty student list after an upgrade, close it without running a command, back up `data/addressbook.json`, and remove or rename the duplicate records in the JSON file before restarting TutorTrack. A command that changes the student records may overwrite the invalid data file.
 </box>
 
 --------------------------------------------------------------------------------------------------------------------

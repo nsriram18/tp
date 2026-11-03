@@ -736,8 +736,9 @@ User Guide where applicable. Use the same working directory on every launch: the
 1. Before entering any command, inspect the `data` folder.<br>
    Expected: `addressbook.json` is still absent. Loading sample data alone does not save it.
 1. Run `list`.<br>
-   Expected: Sample students are listed and `data/addressbook.json` is created containing those students.
-   Successful commands save the current records, including commands such as `list` that do not modify them.
+   Expected: Sample students are listed and `data/addressbook.json` is still absent. Read-only commands do not save.
+1. Run `clear`.<br>
+   Expected: The sample students are removed and `data/addressbook.json` is created with an empty `persons` array.
 1. Close the app, copy `addressbook.backup.json` over `data/addressbook.json`, and relaunch.<br>
    Expected: Only Persistence Check appears, with the original academic fields, tag, and note.
 
@@ -756,9 +757,11 @@ User Guide where applicable. Use the same working directory on every launch: the
 1. Before entering any command, inspect the file.<br>
    Expected: Its invalid contents remain. Loading an empty list does not itself repair the file.
 1. Run `list`.<br>
-   Expected: No students are listed. The file is overwritten with valid JSON containing an empty `persons` array.
-   Even a read-only command can overwrite unreadable data, so the backup must be made before testing. The `exit`
-   command also saves data: use the window's close button when inspecting the file before any command has run.
+   Expected: No students are listed and the invalid file remains unchanged. Read-only commands, including `exit`,
+   do not save the empty list.
+1. Run `add n/Recovery Check p/90000002 e/recovery@example.com a/Block Two`.<br>
+   Expected: Recovery Check is added and the file is overwritten with valid JSON containing that student. Keep the
+   backup so the original data can be restored after this test.
 1. Close the app, copy the backup over `data/addressbook.json`, and relaunch.<br>
    Expected: Persistence Check and all its saved details return.
 
@@ -768,7 +771,7 @@ User Guide where applicable. Use the same working directory on every launch: the
 1. Edit the student's `phone` value in `data/addressbook.json` to `"abc"`, keeping valid JSON syntax.
 1. Relaunch without entering a command.<br>
    Expected: An empty list appears because the student fails phone validation. The invalid file remains unchanged
-   until a command saves the empty list. Valid JSON syntax does not make invalid student values acceptable.
+   until a command changes the student records and saves them. Valid JSON syntax does not make invalid student values acceptable.
 1. Close the app using the window's close button, restore the backup over the invalid file, and relaunch.<br>
    Expected: The known student and all saved details return. Close the app before removing the disposable test
    folder. Retain the backup if further testing is planned.
