@@ -21,6 +21,11 @@
 
 ### AI assistance
 
+* Sriram ([@nsriram18](https://github.com/nsriram18)) used OpenAI Codex to assist with implementing bug fixes and
+  code-quality improvements, generating regression tests, debugging and investigating CI failures, reviewing pull
+  requests, and updating the User and Developer Guides. Codex also helped draft GitHub issue reports and pull request
+  descriptions. Validation assistance included running automated tests and, where applicable, application smoke tests.
+  
 * Lee Hong Sheng ([@RightHandSide](https://github.com/RightHandSide)) used OpenAI Codex to assist with implementing
   bug fixes, refining input validation and user-facing messages, writing and running regression tests, reviewing pull
   requests, and investigating test and CI failures. Codex also helped draft commit messages and pull request
