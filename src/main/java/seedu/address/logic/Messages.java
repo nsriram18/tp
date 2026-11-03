@@ -18,6 +18,8 @@ public class Messages {
             "Cannot schedule lesson: conflicts with %1$s's recurring lesson every %2$s at %3$s for %4$d minutes.";
 
     public static final String MESSAGE_UNKNOWN_COMMAND = "Unknown command.";
+    public static final String MESSAGE_TOPIC_NOT_LAST = "topic/TOPIC must be the last parameter. "
+            + "Move the other parameters before topic/.";
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format!\n%1$s";
     public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The student index provided is invalid.";
     public static final String MESSAGE_DUPLICATE_FIELDS =

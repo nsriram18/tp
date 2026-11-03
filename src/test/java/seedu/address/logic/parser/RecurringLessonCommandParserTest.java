@@ -14,6 +14,7 @@ import java.time.LocalTime;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.RecurringLessonCommand;
 import seedu.address.model.person.LessonDuration;
 import seedu.address.model.person.RecurringLesson;
@@ -73,9 +74,11 @@ public class RecurringLessonCommandParserTest {
 
     @Test
     public void parse_topicBeforeRequiredPrefix_failure() {
-        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, RecurringLessonCommand.MESSAGE_USAGE);
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT,
+                Messages.MESSAGE_TOPIC_NOT_LAST + "\n" + RecurringLessonCommand.MESSAGE_USAGE);
 
         assertParseFailure(parser, "1 day/MONDAY time/16:30 topic/Algebra dur/90", expectedMessage);
+        assertParseFailure(parser, "1 topic/Algebra day/MONDAY time/16:30 dur/90", expectedMessage);
     }
 
     @Test
