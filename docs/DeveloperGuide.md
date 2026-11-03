@@ -21,6 +21,11 @@
 
 ### AI assistance
 
+* Lee Hong Sheng ([@RightHandSide](https://github.com/RightHandSide)) used OpenAI Codex to assist with implementing
+  bug fixes, refining input validation and user-facing messages, writing and running regression tests, reviewing pull
+  requests, and investigating test and CI failures. Codex also helped draft commit messages and pull request
+  descriptions.
+  
 * Toh Wei Jun ([@weijun72](https://github.com/weijun72)) used OpenAI Codex to assist with implementing and refining TutorTrack features and bug fixes, writing and running tests, updating documentation and diagrams, investigating build and CI failures, reviewing pull requests, and drafting commit messages and pull request descriptions. The suggested changes were reviewed and tested before submission.
 
 --------------------------------------------------------------------------------------------------------------------
