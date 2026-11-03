@@ -671,7 +671,7 @@ Lesson dates must be in the future, so the examples use 2099.
 | 14 | `nextlesson 2 date/2099-01-05 time/14:30 dur/60 topic/Cells` | Rejected with a message naming the clashing student. |
 | 15 | `nextlesson 2 date/2099-01-05 time/15:00 dur/60 topic/Cells` | Accepted, because back-to-back lessons are allowed. |
 | 16 | `recurringlesson 1 day/MONDAY time/16:30 dur/90 topic/Revision` | The recurring lesson is saved for student 1. |
-| 17 | `upcoming` | Tester One's lesson is reported as the earliest. |
+| 17 | `upcoming` | Tester One is shown, at the next Monday 16:30 occurrence of the recurring lesson from step 16, which is earlier than the 2099 one-off lesson. |
 | 18 | `sort` | Students with lessons are listed in lesson order. |
 | 19 | `clearlesson 1` | Student 1's next lesson is cleared. |
 | 20 | `clearrecurringlesson 1` | Student 1's recurring lesson is cleared. |
