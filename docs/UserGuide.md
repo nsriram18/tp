@@ -341,6 +341,8 @@ Clears all students in TutorTrack.
 
 Format: `clear`
 
+* If there are no students, TutorTrack reports that there are no students to remove.
+
 ### Exiting the program: `exit`
 
 Exits the program.
