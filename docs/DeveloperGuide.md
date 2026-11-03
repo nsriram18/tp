@@ -19,6 +19,10 @@
 * Libraries used: [JavaFX](https://openjfx.io/), [Jackson](https://github.com/FasterXML/jackson), [JUnit 5](https://github.com/junit-team/junit5), and [Checkstyle](https://checkstyle.sourceforge.io/).
 * Documentation is built with [MarkBind](https://markbind.org/).
 
+### AI assistance
+
+* Toh Wei Jun ([@weijun72](https://github.com/weijun72)) used OpenAI Codex to assist with implementing and refining TutorTrack features and bug fixes, writing and running tests, updating documentation and diagrams, investigating build and CI failures, reviewing pull requests, and drafting commit messages and pull request descriptions. The suggested changes were reviewed and tested before submission.
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Setting up, getting started**
