@@ -796,3 +796,22 @@ User Guide where applicable. Use the same working directory on every launch: the
 1. Close the app using the window's close button, restore the backup over the invalid file, and relaunch.<br>
    Expected: The known student and all saved details return. Close the app before removing the disposable test
    folder. Retain the backup if further testing is planned.
+
+--------------------------------------------------------------------------------------------------------------------
+
+## **Appendix: Planned enhancements**
+
+Team size: 4
+
+1. **Include recurring lessons when sorting.** `sort` currently orders students by their one-off next lesson only, so a
+   student with only a weekly lesson is listed with unscheduled students. We plan to sort by the earlier of the next
+   lesson and the next weekly occurrence, the same start time that `upcoming` uses.
+1. **Ignore completed one-off lessons before restart.** A one-off lesson that has ended is removed only when TutorTrack
+   next starts, so until then it can still be listed first by `sort` and shown on the student card. We plan to treat a
+   lesson as unscheduled once its end time has passed, without waiting for a restart.
+1. **Check saved lessons for clashes when loading.** Lessons edited directly in the data file are validated
+   individually but not against each other, so overlapping lessons can be loaded. We plan to reject such a data file
+   on loading, as with other invalid data, and name the clashing students in the log.
+1. **Limit how far ahead a lesson can be scheduled.** `nextlesson` accepts any valid date up to `9999-12-31`, so a
+   mistyped year such as `2206` is saved without warning. We plan to reject lesson dates more than 5 years ahead with
+   the message `Lesson date must be within 5 years from today.`

@@ -384,6 +384,7 @@ Student names that differ only in capitalization, repeated spaces, or surroundin
 2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
 3. **On macOS, using fullscreen mode** may cause the Help Window to behave unexpectedly. The remedy is to exit fullscreen before opening the Help Window.
 4. **Text that looks like a parameter prefix** (such as `s/o` in a name or address) is read as a parameter. See the caution under [`add`](#adding-a-student-add).
+5. **Overlapping lessons added by editing the data file** are not detected when TutorTrack loads the file. Lessons scheduled with `nextlesson` and `recurringlesson` are always checked for clashes, so use these commands rather than editing lesson times in the file.
 --------------------------------------------------------------------------------------------------------------------
 
 ## Command summary
