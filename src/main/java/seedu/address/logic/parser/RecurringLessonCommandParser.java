@@ -7,6 +7,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_LESSON_DURATION;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LESSON_TIME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LESSON_TOPIC;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Locale;
@@ -22,6 +23,17 @@ import seedu.address.model.person.RecurringLesson;
  */
 public class RecurringLessonCommandParser implements Parser<RecurringLessonCommand> {
     private static final String MESSAGE_INVALID_DAY = "Lesson day must be a valid day of the week, such as MONDAY.";
+    private final Clock clock;
+
+    /** Creates a parser using the computer's local time zone. */
+    public RecurringLessonCommandParser() {
+        this(Clock.systemDefaultZone());
+    }
+
+    /** Shares the supplied clock with recurring-lesson commands. */
+    public RecurringLessonCommandParser(Clock clock) {
+        this.clock = requireNonNull(clock);
+    }
 
     @Override
     public RecurringLessonCommand parse(String args) throws ParseException {
@@ -55,7 +67,7 @@ public class RecurringLessonCommandParser implements Parser<RecurringLessonComma
 
         try {
             return new RecurringLessonCommand(index, new RecurringLesson(day, time,
-                    argMultimap.getValue(PREFIX_LESSON_TOPIC).orElseThrow(), duration));
+                    argMultimap.getValue(PREFIX_LESSON_TOPIC).orElseThrow(), duration), clock);
         } catch (IllegalArgumentException e) {
             throw new ParseException(e.getMessage(), e);
         }

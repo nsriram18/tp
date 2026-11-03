@@ -9,14 +9,17 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
+import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -33,6 +36,34 @@ public class RecurringLessonCommandTest {
             new RecurringLesson(DayOfWeek.MONDAY, LocalTime.of(16, 0), "Algebra", DURATION);
 
     private final Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
+
+    @Test
+    public void execute_parsedCommand_ignoresOnlyCompletedOneOffLessons() throws Exception {
+        LocalDate date = LocalDate.of(2099, 6, 15);
+        NextLesson existing = NextLesson.fromStoredValues(date, LocalTime.of(14, 0), "Existing topic",
+                new LessonDuration("60"));
+        RecurringLesson proposed = new RecurringLesson(date.getDayOfWeek(), LocalTime.of(14, 30), "New topic",
+                new LessonDuration("60"));
+        for (LocalTime now : java.util.List.of(LocalTime.of(13, 59), LocalTime.of(14, 30),
+                LocalTime.of(15, 0), LocalTime.of(15, 1))) {
+            Model testModel = new ModelManager();
+            Person target = new PersonBuilder().withName("Target Student").build();
+            Person other = new PersonBuilder().withName("Other Student").withNextLesson(existing).build();
+            testModel.addPerson(target);
+            testModel.addPerson(other);
+            Clock clock = Clock.fixed(date.atTime(now).toInstant(ZoneOffset.UTC), ZoneOffset.UTC);
+            Command command = new AddressBookParser(clock).parseCommand("recurringlesson 1 day/"
+                    + date.getDayOfWeek() + " time/14:30 dur/60 topic/New topic");
+            if (now.isBefore(LocalTime.of(15, 0))) {
+                assertCommandFailure(command, testModel, String.format(Messages.MESSAGE_LESSON_CLASH,
+                        other.getName().fullName, date, existing.time, 60));
+            } else {
+                Model expectedModel = new ModelManager(testModel.getAddressBook(), new UserPrefs());
+                expectedModel.setPerson(target, new PersonBuilder(target).withRecurringLesson(proposed).build());
+                assertCommandSuccess(command, testModel, getExpectedSuccessMessage(target, proposed), expectedModel);
+            }
+        }
+    }
 
     @Test
     public void execute_validIndex_setsRecurringLessonAndPreservesStudentDetails() {

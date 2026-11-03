@@ -2,6 +2,8 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -40,13 +42,23 @@ public final class TimetableClashChecker {
      */
     public static Optional<LessonClash<NextLesson>> findNextLessonClash(Person target, RecurringLesson proposed,
             Iterable<Person> students) {
+        return findNextLessonClash(target, proposed, students, Clock.systemDefaultZone());
+    }
+
+    /** Checks only one-off lessons that have not ended at the supplied clock's current time. */
+    public static Optional<LessonClash<NextLesson>> findNextLessonClash(Person target, RecurringLesson proposed,
+            Iterable<Person> students, Clock clock) {
         requireNonNull(target);
         requireNonNull(proposed);
         requireNonNull(students);
+        LocalDateTime now = LocalDateTime.now(requireNonNull(clock));
         WeeklyLessonInterval proposedInterval = WeeklyLessonInterval.from(proposed);
         for (Person student : students) {
             if (student.getNextLesson().isPresent()) {
                 NextLesson existing = student.getNextLesson().orElseThrow();
+                if (!existing.getEndDateTime().isAfter(now)) {
+                    continue;
+                }
                 if (!isOwnOccurrence(target, student, existing, proposed)
                         && proposedInterval.overlaps(DatedLessonInterval.from(existing).toWeeklyInterval())) {
                     return Optional.of(new LessonClash<>(student, existing));

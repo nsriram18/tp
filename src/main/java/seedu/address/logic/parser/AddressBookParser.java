@@ -96,7 +96,7 @@ public class AddressBookParser {
             case SortCommand.COMMAND_WORD -> new SortCommand();
             case ViewCommand.COMMAND_WORD -> new ViewCommandParser().parse(arguments);
             case UpcomingCommand.COMMAND_WORD -> new UpcomingCommand(clock);
-            case RecurringLessonCommand.COMMAND_WORD -> new RecurringLessonCommandParser().parse(arguments);
+            case RecurringLessonCommand.COMMAND_WORD -> new RecurringLessonCommandParser(clock).parse(arguments);
             default -> {
                 logger.finer("This user input caused a ParseException: " + userInput);
                 throw new ParseException(MESSAGE_UNKNOWN_COMMAND);
