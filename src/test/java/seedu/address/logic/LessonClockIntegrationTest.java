@@ -57,8 +57,22 @@ public class LessonClockIntegrationTest {
     }
 
     @Test
-    public void execute_justAfterStart_rejectsNewBookingWithoutChangingStudents() {
+    public void execute_justAfterStart_acceptsBookingInCurrentMinute() throws Exception {
         Clock clock = clockAt(START.plusNanos(1));
+        StorageManager storage = new StorageManager(
+                new JsonAddressBookStorage(testFolder.resolve("students.json"), clock),
+                new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
+        Model model = createModel();
+
+        new LogicManager(model, storage, clock).execute(BOOKING);
+
+        assertEquals(START, model.getAddressBook().getPersonList().getFirst().getNextLesson()
+                .orElseThrow().getDateTime());
+    }
+
+    @Test
+    public void execute_startInPreviousMinute_rejectsNewBookingWithoutChangingStudents() {
+        Clock clock = clockAt(START.plusMinutes(1));
         StorageManager storage = new StorageManager(
                 new JsonAddressBookStorage(testFolder.resolve("students.json"), clock),
                 new JsonUserPrefsStorage(testFolder.resolve("preferences.json")));
